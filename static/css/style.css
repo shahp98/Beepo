@@ -1,0 +1,31 @@
+/* label focus color */
+
+#modal1{
+    display: none;
+}
+
+#board  {
+    background-color: #f5f5f5 !important;
+}
+
+html {
+font-family: Raleway, sans-serif;
+}
+
+.background {
+    background: linear-gradient(141deg, #0fb8ad 0%, #1fc8db 51%, #2cb5e8 75%);
+}
+
+.input-field input[type=text]:focus + label {
+    color: #000; !important;
+}
+/* label underline focus color */
+.input-field input[type=text]:focus {
+    border-bottom: 1px solid #000; !important;
+    box-shadow: 0 1px 0 0 #000; !important;
+}
+
+.input-field input[type=password]:focus {
+    border-bottom: 1px solid #000; !important;
+    box-shadow: 0 1px 0 0 #000; !important;
+}

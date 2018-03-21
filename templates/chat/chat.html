@@ -1,0 +1,148 @@
+{% extends 'chat/index.html' %}
+{% block body %}
+<nav class="blue lighten-3 background">
+    <div class="nav-wrapper container">
+      <a href="#" class="brand-logo">Chat</a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+          <li><a href="">{{ request.user.username }}</a></li>
+         <!--<li><input type="checkbox" id="test5"/><label for="test5">Filter Mode</label></li>-->
+          <li><a href="{% url 'logout' %}"><i class="material-icons">power_settings_new</i></a></li>
+      </ul>
+    </div>
+</nav>
+    <div class="section" style="height: 80vh background-color: 	#152a2a">
+    <div class="row">
+        <div class="col s3">
+        <div class="card">
+            <div class="collection">
+                {% for user in users %}
+                <a href="{% url 'chat' request.user.id user.id %}" id="user{{ user.id }}" class="collection-item row">
+                    <img src="https://frontend-1.adjust.com/new-assets/images/site-images/interface/user.svg" class="col s4">
+                    <div class="col s8">
+                    <span class="title" style="font-weight: bolder">{{ user.username }}</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        </div>
+        <div class="col s9">
+            <div class="card">
+            <div id="board" class="section grey lighten-3" style="height: 68vh; padding: 5px; overflow-y: scroll">
+                {% block messages %}
+
+                {% endblock %}
+            </div>
+
+              <!-- Modal Structure -->
+            <div id="modal1" class="modal">
+                <div class="modal-content">
+                  <h4>That's not so nice.</h4>
+                  <p>We see you chose to be rude to our hoomans. Now please reconsider sending this message.<br><br>Sending love your way, Beepo.</p>
+                </div>
+                <div class="modal-footer">
+                  <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Okay</a>
+                  <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">I am rude</a>
+                </div>
+            </div>
+
+
+            <form id="chat-box" class="form-group {% block hide %}hide{% endblock %}" method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col s9">
+                        <div class="input-field" style="padding-left: 10%">
+                            <input id="id_message" name="message" type="text" placeholder="Type your message..">
+                        </div>
+                    </div>
+                    <div class="col s3" style="line-height: 80px; padding-left: 8%;">
+                        <a class="btn tooltipped" data-position="top" data-delay="50" data-tooltip="Be nice to someone today!">Send</a>
+                    </div>
+                </div>
+            </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    {% load staticfiles %}
+    <script src="{% static 'js/chat.js' %}"></script>
+    <script>
+        // For receiving
+        sender_id = "{{ receiver.id }}";
+        receiver_id = "{{ request.user.id }}";
+
+        jQuery(document).ready(function(){
+            $('.modal').modal({
+                  dismissible: true, // Modal can be dismissed by clicking outside of the modal
+                  opacity: .5, // Opacity of modal background
+                  inDuration: 300, // Transition in duration
+                  outDuration: 200, // Transition out duration
+                  startingTop: '4%', // Starting top style attribute
+                  endingTop: '10%'
+              });
+            });
+
+
+        //For sending
+        jQuery(function () {
+            scrolltoend();
+            jQuery('#chat-box').on('submit', function (event) {
+                event.preventDefault();
+                var message = jQuery('#id_message');
+
+                    jQuery.ajax({
+                        //url: //"https://api1.webpurify.com/services/rest/?method=webpurify.live.check&api_key=e72ff1//ec1c1f968d3ed0a462e62c125a&text="+message.val()+"&format=json",
+
+
+                        url: "https://api1.webpurify.com/services/rest/",
+                        method: "POST",
+
+                        jsonp: 'callback',
+                        dataType: 'jsonp',
+
+                        data: {
+                            method: "webpurify.live.check",
+                            {% comment %}
+                            api_key: "e72ff1ec1c1f968d3ed0a462e62c125a",
+                            {% endcomment %}
+                            text: message.val(),
+                            format: "json"
+                        },
+
+                        success: function(response) {
+                            if(response.rsp.found==0)
+                                send('{{ request.user.username }}', '{{ receiver.username }}', message.val());
+                            else
+                                jQuery('#modal1').modal('open');
+                            message.val('');
+                        }});
+
+                        /*var settings = {
+                          "async": true,
+                          "crossDomain": true,
+                          "url": "https://api1.webpurify.com/services/rest/?method=webpurify.live.check&api_key=e72ff1ec1c1f968d3ed0a462e62c125a&text=bitch%20fuck%20idiot&format=json",
+                          "method": "POST",
+                          "headers": {
+                            "content-type": "application/json",
+                            "cache-control": "no-cache",
+                            "postman-token": "4a567b00-1956-a244-9c9e-ca1332dc3e31"
+                          }
+                        }
+
+                        $.ajax(settings).done(function (response) {
+                          console.log(response);
+                        });*/
+            function callback(){
+                console.log('hi');
+            }})
+        })
+        /*function isChecked(){
+            var box=document.getElementById('#test5');
+            if(box.checked==true)
+                return 1;
+            else {
+                return 0;
+            }
+        }*/
+    </script>
+{% endblock %}
